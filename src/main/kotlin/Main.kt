@@ -19,10 +19,23 @@ fun main() {
 //        val html = page.content()
 //        println(html)
 
-        val items = page.querySelectorAll("[data-testid='product-title']")
+        val product_selectors = page.querySelectorAll(".css-yyn1h")
 
-        for (item in items) {
-            println(item.innerText())
+//        println(items[0].innerText())
+        for (product in product_selectors) {
+            val img = product.querySelector("img").getAttribute("src")
+            val title = product.querySelector("[data-testid='product-title']").innerText()
+
+            var price_element = product.querySelector("[data-testid='regular-price']")
+            if (price_element == null) {
+                price_element = product.querySelector("[data-testid='sale-price']")
+            }
+
+            val price = price_element.innerText()
+
+            println(img)
+            println(title)
+            println(price)
         }
 
         browser.close()

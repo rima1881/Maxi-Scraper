@@ -1,7 +1,7 @@
 
 product selector:
 ```
-    class="css-0"
+    class="css-yyn1h"
 ```
 
 
