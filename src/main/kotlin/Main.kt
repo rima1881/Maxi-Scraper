@@ -1,27 +1,46 @@
 package org.example
 import com.microsoft.playwright.*
-import com.microsoft.playwright.options.LoadState
-import com.microsoft.playwright.options.WaitForSelectorState
-import com.microsoft.playwright.options.WaitUntilState
-
+import org.pois_noir.botzilla.Component
 
 fun main() {
+    var scraper_component = Component("scraper", "ppap")
+
+    val handler = { input : Map<String, String> ->
+        // process input
+        val barcode = input["barcode"].toString()
+        println(barcode)
+        scraper(barcode)
+
+        Result.success(input) // example
+    }
+
+    scraper_component.onMessage = handler
+
+    while (true) {}
+}
+
+
+fun scraper(barcode: String) {
+
     Playwright.create().use { playwright ->
         val browser = playwright.chromium().launch(
             BrowserType.LaunchOptions().setHeadless(true)
         )
         val page = browser.newPage()
 
-        page.navigate("https://www.maxi.ca/en/search?search-bar=eggs")
+        page.navigate("https://www.maxi.ca/en/search?search-bar=" + barcode)
         playwright.selectors().setTestIdAttribute("data-testid")
 
         page.waitForSelector("[data-testid='product-image']", Page.WaitForSelectorOptions())
-//        val html = page.content()
-//        println(html)
+
+        val header_element = page.querySelector("[data-testid='heading']")
+        if (header_element != null && header_element.innerText() == "We were unable to find results for \"$barcode\"") {
+            println("product is not found")
+            return
+        }
 
         val product_selectors = page.querySelectorAll(".css-yyn1h")
 
-//        println(items[0].innerText())
         for (product in product_selectors) {
             val img = product.querySelector("img").getAttribute("src")
             val title = product.querySelector("[data-testid='product-title']").innerText()
